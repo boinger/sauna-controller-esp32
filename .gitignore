@@ -23,6 +23,15 @@
 .AppleDouble
 .LSOverride
 
+# Generated files
+compile_commands.json
+sdkconfig
+sdkconfig.old
+
+# Language server cache
+.cache/
+.ccls-cache/
+
 # Secrets (never commit these)
 secrets.h
 credentials.h
