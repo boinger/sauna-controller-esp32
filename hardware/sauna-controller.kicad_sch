@@ -1,0 +1,737 @@
+(kicad_sch
+  (version 20231120)
+  (generator "eeschema")
+  (generator_version "8.0")
+  (uuid "e63e39d7-6ac0-4ffd-8aa3-1841a4541b55")
+  (paper "A4")
+  (title_block
+    (title "Sauna Controller")
+    (date "2026-01-14")
+    (rev "1.0")
+    (comment 1 "ESP32-based sauna heater controller")
+    (comment 2 "With HomeKit integration")
+  )
+
+  (lib_symbols
+    (symbol "SaunaController:ESP32_Module"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at 0 16.51 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "ESP32-DevKit"
+        (at 0 -16.51 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (symbol "ESP32_Module_0_1"
+        (rectangle
+          (start -10.16 15.24)
+          (end 10.16 -15.24)
+          (stroke (width 0.254) (type default))
+          (fill (type background))
+        )
+      )
+      (symbol "ESP32_Module_1_1"
+        (pin power_in line
+          (at -12.7 12.7 0)
+          (length 2.54)
+          (name "3V3" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin power_in line
+          (at -12.7 -12.7 0)
+          (length 2.54)
+          (name "GND" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+        (pin output line
+          (at 12.7 5.08 180)
+          (length 2.54)
+          (name "GPIO26" (effects (font (size 1.27 1.27))))
+          (number "3" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line
+          (at 12.7 0 180)
+          (length 2.54)
+          (name "GPIO27" (effects (font (size 1.27 1.27))))
+          (number "4" (effects (font (size 1.27 1.27))))
+        )
+        (pin power_in line
+          (at -12.7 7.62 0)
+          (length 2.54)
+          (name "5V/USB" (effects (font (size 1.27 1.27))))
+          (number "5" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+
+    (symbol "SaunaController:DS18B20"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at 0 7.62 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "DS18B20"
+        (at 0 -7.62 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (symbol "DS18B20_0_1"
+        (rectangle
+          (start -5.08 6.35)
+          (end 5.08 -6.35)
+          (stroke (width 0.254) (type default))
+          (fill (type background))
+        )
+      )
+      (symbol "DS18B20_1_1"
+        (pin power_in line
+          (at -7.62 3.81 0)
+          (length 2.54)
+          (name "VDD" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line
+          (at 7.62 0 180)
+          (length 2.54)
+          (name "DQ" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+        (pin power_in line
+          (at -7.62 -3.81 0)
+          (length 2.54)
+          (name "GND" (effects (font (size 1.27 1.27))))
+          (number "3" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+
+    (symbol "SaunaController:SSR-25DA"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "K"
+        (at 0 11.43 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "SSR-25DA"
+        (at 0 -11.43 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (symbol "SSR-25DA_0_1"
+        (rectangle
+          (start -7.62 10.16)
+          (end 7.62 -10.16)
+          (stroke (width 0.254) (type default))
+          (fill (type background))
+        )
+        (polyline
+          (pts (xy -2.54 2.54) (xy 2.54 2.54))
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts (xy -2.54 -5.08) (xy 2.54 -2.54))
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts (xy 2.54 -5.08) (xy 2.54 -2.54))
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts (xy -2.54 -2.54) (xy -2.54 -5.08))
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+      )
+      (symbol "SSR-25DA_1_1"
+        (pin input line
+          (at -10.16 5.08 0)
+          (length 2.54)
+          (name "DC+" (effects (font (size 1.27 1.27))))
+          (number "3" (effects (font (size 1.27 1.27))))
+        )
+        (pin input line
+          (at -10.16 0 0)
+          (length 2.54)
+          (name "DC-" (effects (font (size 1.27 1.27))))
+          (number "4" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line
+          (at 10.16 5.08 180)
+          (length 2.54)
+          (name "AC1" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line
+          (at 10.16 -5.08 180)
+          (length 2.54)
+          (name "AC2" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+
+    (symbol "Device:R"
+      (pin_numbers hide)
+      (pin_names (offset 0))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "R"
+        (at 2.032 0 90)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "R"
+        (at 0 0 90)
+        (effects (font (size 1.27 1.27)))
+      )
+      (symbol "R_0_1"
+        (rectangle
+          (start -1.016 -2.54)
+          (end 1.016 2.54)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+      )
+      (symbol "R_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 1.27)
+          (name "~" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 1.27)
+          (name "~" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+
+    (symbol "SaunaController:Contactor_Coil"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "K"
+        (at 0 5.08 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "Contactor"
+        (at 0 -5.08 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (symbol "Contactor_Coil_0_1"
+        (rectangle
+          (start -2.54 3.81)
+          (end 2.54 -3.81)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (arc
+          (start 0 1.27)
+          (mid -0.635 0.635)
+          (end 0 0)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (arc
+          (start 0 0)
+          (mid 0.635 -0.635)
+          (end 0 -1.27)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (arc
+          (start 0 2.54)
+          (mid -0.635 1.905)
+          (end 0 1.27)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (arc
+          (start 0 -1.27)
+          (mid 0.635 -1.905)
+          (end 0 -2.54)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+      )
+      (symbol "Contactor_Coil_1_1"
+        (pin passive line
+          (at 0 6.35 270)
+          (length 2.54)
+          (name "A1" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line
+          (at 0 -6.35 90)
+          (length 2.54)
+          (name "A2" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+
+    (symbol "SaunaController:Timer_Switch"
+      (pin_names (offset 1.016))
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "S"
+        (at 0 5.08 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "Timer"
+        (at 0 -5.08 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (symbol "Timer_Switch_0_1"
+        (polyline
+          (pts (xy -5.08 0) (xy -2.54 0))
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts (xy -2.54 0) (xy 2.54 2.54))
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts (xy 2.54 0) (xy 5.08 0))
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (circle
+          (center 2.54 0)
+          (radius 0.508)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+      )
+      (symbol "Timer_Switch_1_1"
+        (pin passive line
+          (at -7.62 0 0)
+          (length 2.54)
+          (name "1" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line
+          (at 7.62 0 180)
+          (length 2.54)
+          (name "2" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+  )
+
+  (text "LOW VOLTAGE (3.3V DC)\nESP32 Control Circuit"
+    (exclude_from_sim no)
+    (at 63.5 25.4 0)
+    (effects (font (size 2.54 2.54)) (justify left bottom))
+  )
+
+  (text "HIGH VOLTAGE (240V AC)\nHeater Control Circuit"
+    (exclude_from_sim no)
+    (at 165.1 25.4 0)
+    (effects (font (size 2.54 2.54)) (justify left bottom))
+  )
+
+  (text "WARNING: 240VAC - Qualified electrician required"
+    (exclude_from_sim no)
+    (at 165.1 180.34 0)
+    (effects (font (size 1.524 1.524) bold) (justify left bottom))
+  )
+
+  (symbol
+    (lib_id "SaunaController:ESP32_Module")
+    (at 63.5 76.2 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+    (property "Reference" "U1"
+      (at 63.5 57.15 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "ESP32-DevKit"
+      (at 63.5 95.25 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (pin "1"
+      (uuid "pin1-uuid-1111")
+    )
+    (pin "2"
+      (uuid "pin2-uuid-2222")
+    )
+    (pin "3"
+      (uuid "pin3-uuid-3333")
+    )
+    (pin "4"
+      (uuid "pin4-uuid-4444")
+    )
+    (pin "5"
+      (uuid "pin5-uuid-5555")
+    )
+    (instances
+      (project "sauna-controller"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (reference "U1")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "SaunaController:DS18B20")
+    (at 63.5 127 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "b2c3d4e5-f6a7-8901-bcde-f23456789012")
+    (property "Reference" "U2"
+      (at 63.5 116.84 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "DS18B20"
+      (at 63.5 137.16 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (pin "1"
+      (uuid "ds-pin1-uuid")
+    )
+    (pin "2"
+      (uuid "ds-pin2-uuid")
+    )
+    (pin "3"
+      (uuid "ds-pin3-uuid")
+    )
+    (instances
+      (project "sauna-controller"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (reference "U2")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 88.9 111.76 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "c3d4e5f6-a7b8-9012-cdef-345678901234")
+    (property "Reference" "R1"
+      (at 91.44 111.76 90)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "4.7k"
+      (at 88.9 111.76 90)
+      (effects (font (size 1.27 1.27)))
+    )
+    (pin "1"
+      (uuid "r-pin1-uuid")
+    )
+    (pin "2"
+      (uuid "r-pin2-uuid")
+    )
+    (instances
+      (project "sauna-controller"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (reference "R1")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "SaunaController:SSR-25DA")
+    (at 165.1 76.2 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "d4e5f6a7-b8c9-0123-defa-456789012345")
+    (property "Reference" "K1"
+      (at 165.1 62.23 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "SSR-25DA"
+      (at 165.1 90.17 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (pin "1"
+      (uuid "ssr-pin1-uuid")
+    )
+    (pin "2"
+      (uuid "ssr-pin2-uuid")
+    )
+    (pin "3"
+      (uuid "ssr-pin3-uuid")
+    )
+    (pin "4"
+      (uuid "ssr-pin4-uuid")
+    )
+    (instances
+      (project "sauna-controller"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (reference "K1")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "SaunaController:Timer_Switch")
+    (at 165.1 114.3 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "e5f6a7b8-c9d0-1234-efab-567890123456")
+    (property "Reference" "S1"
+      (at 165.1 106.68 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "Heater Timer"
+      (at 165.1 121.92 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (pin "1"
+      (uuid "timer-pin1-uuid")
+    )
+    (pin "2"
+      (uuid "timer-pin2-uuid")
+    )
+    (instances
+      (project "sauna-controller"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (reference "S1")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol
+    (lib_id "SaunaController:Contactor_Coil")
+    (at 215.9 95.25 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f6a7b8c9-d0e1-2345-fabc-678901234567")
+    (property "Reference" "K2"
+      (at 215.9 87.63 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "C25BNB230T"
+      (at 215.9 102.87 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (pin "1"
+      (uuid "contactor-pin1-uuid")
+    )
+    (pin "2"
+      (uuid "contactor-pin2-uuid")
+    )
+    (instances
+      (project "sauna-controller"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (reference "K2")
+          (unit 1)
+        )
+      )
+    )
+  )
+
+  (wire
+    (pts (xy 76.2 76.2) (xy 88.9 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-gpio27-to-r")
+  )
+  (wire
+    (pts (xy 88.9 76.2) (xy 88.9 107.95))
+    (stroke (width 0) (type default))
+    (uuid "wire-r-vert")
+  )
+  (wire
+    (pts (xy 88.9 115.57) (xy 88.9 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-r-to-ds")
+  )
+  (wire
+    (pts (xy 71.12 127) (xy 88.9 127))
+    (stroke (width 0) (type default))
+    (uuid "wire-ds-dq")
+  )
+  (wire
+    (pts (xy 50.8 63.5) (xy 50.8 123.19))
+    (stroke (width 0) (type default))
+    (uuid "wire-3v3-vert")
+  )
+  (wire
+    (pts (xy 50.8 123.19) (xy 55.88 123.19))
+    (stroke (width 0) (type default))
+    (uuid "wire-3v3-to-ds")
+  )
+  (wire
+    (pts (xy 50.8 63.5) (xy 88.9 63.5))
+    (stroke (width 0) (type default))
+    (uuid "wire-3v3-horiz")
+  )
+  (wire
+    (pts (xy 88.9 63.5) (xy 88.9 107.95))
+    (stroke (width 0) (type default))
+    (uuid "wire-3v3-to-r")
+  )
+  (wire
+    (pts (xy 76.2 71.12) (xy 100.33 71.12))
+    (stroke (width 0) (type default))
+    (uuid "wire-gpio26-1")
+  )
+  (wire
+    (pts (xy 100.33 71.12) (xy 100.33 71.12))
+    (stroke (width 0) (type default))
+    (uuid "wire-gpio26-corner")
+  )
+  (wire
+    (pts (xy 100.33 71.12) (xy 154.94 71.12))
+    (stroke (width 0) (type default))
+    (uuid "wire-gpio26-to-ssr")
+  )
+  (wire
+    (pts (xy 50.8 88.9) (xy 50.8 130.81))
+    (stroke (width 0) (type default))
+    (uuid "wire-gnd-vert")
+  )
+  (wire
+    (pts (xy 50.8 130.81) (xy 55.88 130.81))
+    (stroke (width 0) (type default))
+    (uuid "wire-gnd-to-ds")
+  )
+  (wire
+    (pts (xy 50.8 88.9) (xy 50.8 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-gnd-up")
+  )
+  (wire
+    (pts (xy 50.8 76.2) (xy 100.33 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-gnd-horiz")
+  )
+  (wire
+    (pts (xy 100.33 76.2) (xy 154.94 76.2))
+    (stroke (width 0) (type default))
+    (uuid "wire-gnd-to-ssr-dc")
+  )
+  (wire
+    (pts (xy 175.26 71.12) (xy 195.58 71.12))
+    (stroke (width 0) (type default))
+    (uuid "wire-ssr-ac1-out")
+  )
+  (wire
+    (pts (xy 175.26 81.28) (xy 195.58 81.28))
+    (stroke (width 0) (type default))
+    (uuid "wire-ssr-ac2-1")
+  )
+  (wire
+    (pts (xy 195.58 81.28) (xy 195.58 88.9))
+    (stroke (width 0) (type default))
+    (uuid "wire-ssr-ac2-vert")
+  )
+  (wire
+    (pts (xy 195.58 88.9) (xy 215.9 88.9))
+    (stroke (width 0) (type default))
+    (uuid "wire-to-contactor-a1")
+  )
+  (wire
+    (pts (xy 172.72 114.3) (xy 195.58 114.3))
+    (stroke (width 0) (type default))
+    (uuid "wire-timer-out")
+  )
+  (wire
+    (pts (xy 195.58 114.3) (xy 195.58 88.9))
+    (stroke (width 0) (type default))
+    (uuid "wire-timer-to-ssr-join")
+  )
+  (wire
+    (pts (xy 195.58 71.12) (xy 195.58 88.9))
+    (stroke (width 0) (type default))
+    (uuid "wire-ac-hot-join")
+  )
+  (wire
+    (pts (xy 139.7 71.12) (xy 139.7 114.3))
+    (stroke (width 0) (type default))
+    (uuid "wire-ac-hot-vert")
+  )
+  (wire
+    (pts (xy 139.7 114.3) (xy 157.48 114.3))
+    (stroke (width 0) (type default))
+    (uuid "wire-ac-to-timer")
+  )
+  (wire
+    (pts (xy 139.7 71.12) (xy 175.26 71.12))
+    (stroke (width 0) (type default))
+    (uuid "wire-ac-to-ssr")
+  )
+  (wire
+    (pts (xy 215.9 101.6) (xy 215.9 139.7))
+    (stroke (width 0) (type default))
+    (uuid "wire-contactor-a2")
+  )
+  (wire
+    (pts (xy 215.9 139.7) (xy 139.7 139.7))
+    (stroke (width 0) (type default))
+    (uuid "wire-neutral-horiz")
+  )
+
+  (text "AC Hot (L)"
+    (exclude_from_sim no)
+    (at 134.62 68.58 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+  )
+
+  (text "AC Neutral (N)"
+    (exclude_from_sim no)
+    (at 134.62 142.24 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+  )
+
+  (text "To Heater\nContactor"
+    (exclude_from_sim no)
+    (at 220.98 95.25 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+  )
+
+  (text "Existing heater\ntimer switch\n(in parallel)"
+    (exclude_from_sim no)
+    (at 149.86 127 0)
+    (effects (font (size 1.27 1.27)) (justify left))
+  )
+)
