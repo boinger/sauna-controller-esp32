@@ -9,6 +9,7 @@
 #include <HomeSpan.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <esp_task_wdt.h>
 
 // =============================================================================
 // Pin Definitions
@@ -23,6 +24,8 @@ constexpr uint8_t PIN_STATUS_LED = 2;       // Onboard LED for status
 constexpr float TEMP_MAX_CELSIUS = 110.0f;  // Safety limit
 constexpr uint32_t SESSION_MAX_MINUTES = 60; // Hard limit fallback
 constexpr uint32_t TEMP_READ_INTERVAL_MS = 2000;
+constexpr float TEMP_HYSTERESIS = 2.0f;     // Deadband for thermostat cycling
+constexpr uint32_t CONVERSION_WAIT_MS = 750; // DS18B20 12-bit conversion time
 
 // =============================================================================
 // Global Objects
@@ -41,6 +44,12 @@ struct SaunaThermostat : Service::Thermostat {
     SpanCharacteristic *currentState;
     SpanCharacteristic *targetState;
 
+    bool heaterActive = false;
+    bool sensorFault = false;
+    uint32_t sessionStartTime = 0;
+    bool conversionRequested = false;
+    uint32_t lastConversionRequest = 0;
+
     SaunaThermostat() : Service::Thermostat() {
         currentTemp = new Characteristic::CurrentTemperature(20.0);
         currentTemp->setRange(0, 120);
@@ -51,16 +60,27 @@ struct SaunaThermostat : Service::Thermostat {
         currentState = new Characteristic::CurrentHeatingCoolingState(0);
         targetState = new Characteristic::TargetHeatingCoolingState(0);
 
+        new Characteristic::TemperatureDisplayUnits(0);  // Celsius
+
         // Sauna only heats, no cooling
         targetState->setValidValues(2, 0, 1);  // OFF and HEAT only
     }
 
     bool update() override {
-        // Called when HomeKit sends a command
         if (targetState->updated()) {
             int state = targetState->getNewVal();
-            setHeaterState(state == 1);  // 1 = HEAT
-            LOG1("HomeKit: Heater set to %s\n", state == 1 ? "ON" : "OFF");
+
+            if (state == 1 && sensorFault) {
+                LOG1("SAFETY: HEAT command blocked — sensor fault active\n");
+                return false;
+            }
+
+            if (state == 0) {
+                setHeaterState(false);
+            }
+            // state == 1 (HEAT): don't turn heater on immediately.
+            // loop() will engage it when temperature is below target.
+            LOG1("HomeKit: Target state set to %s\n", state == 1 ? "HEAT" : "OFF");
         }
 
         if (targetTemp->updated()) {
@@ -72,45 +92,72 @@ struct SaunaThermostat : Service::Thermostat {
     }
 
     void loop() override {
-        // Called every loop iteration - update current temperature
-        static uint32_t lastTempRead = 0;
+        uint32_t now = millis();
 
-        if (millis() - lastTempRead >= TEMP_READ_INTERVAL_MS) {
-            lastTempRead = millis();
-            float temp = readTemperature();
+        // --- Session timeout safety check ---
+        if (heaterActive && (now - sessionStartTime >= SESSION_MAX_MINUTES * 60000UL)) {
+            setHeaterState(false);
+            targetState->setVal(0);
+            LOG1("SAFETY: Session time limit (%u min) reached, heater disabled\n",
+                 SESSION_MAX_MINUTES);
+        }
 
-            if (temp > -100) {  // Valid reading
-                currentTemp->setVal(temp);
+        // --- Async temperature read state machine ---
+        if (!conversionRequested) {
+            // Phase 1: Request a new conversion at the configured interval
+            if (now - lastConversionRequest >= TEMP_READ_INTERVAL_MS) {
+                tempSensor.requestTemperatures();
+                conversionRequested = true;
+                lastConversionRequest = now;
+            }
+        } else {
+            // Phase 2: Wait for conversion to complete, then process
+            if (now - lastConversionRequest >= CONVERSION_WAIT_MS) {
+                conversionRequested = false;
+                float temp = tempSensor.getTempCByIndex(0);
 
-                // Update heating state based on actual conditions
-                bool heaterOn = digitalRead(PIN_RELAY) == HIGH;
-                currentState->setVal(heaterOn ? 1 : 0);
-
-                // Safety check
-                if (temp >= TEMP_MAX_CELSIUS) {
+                if (temp <= DEVICE_DISCONNECTED_C) {
+                    // Sensor fault — fail safe immediately
+                    LOG1("SAFETY: Temperature sensor fault (%.1f), heater disabled\n", temp);
                     setHeaterState(false);
                     targetState->setVal(0);
-                    LOG1("SAFETY: Max temp reached, heater disabled\n");
+                    sensorFault = true;
+                    currentState->setVal(0);
+                } else {
+                    // Valid reading
+                    sensorFault = false;
+                    currentTemp->setVal(temp);
+
+                    // Over-temperature safety cutoff
+                    if (temp >= TEMP_MAX_CELSIUS) {
+                        setHeaterState(false);
+                        targetState->setVal(0);
+                        LOG1("SAFETY: Max temp (%.0f°C) reached, heater disabled\n",
+                             TEMP_MAX_CELSIUS);
+                    }
+                    // Thermostat hysteresis control
+                    else if (targetState->getVal() == 1) {
+                        float target = targetTemp->getVal<float>();
+                        if (!heaterActive && temp < (target - TEMP_HYSTERESIS)) {
+                            setHeaterState(true);
+                        } else if (heaterActive && temp >= target) {
+                            setHeaterState(false);
+                        }
+                    }
+
+                    currentState->setVal(heaterActive ? 1 : 0);
                 }
             }
         }
     }
 
     void setHeaterState(bool on) {
+        heaterActive = on;
         digitalWrite(PIN_RELAY, on ? HIGH : LOW);
         digitalWrite(PIN_STATUS_LED, on ? HIGH : LOW);
-    }
-
-    float readTemperature() {
-        tempSensor.requestTemperatures();
-        float tempC = tempSensor.getTempCByIndex(0);
-
-        if (tempC == DEVICE_DISCONNECTED_C) {
-            LOG1("ERROR: Temperature sensor disconnected\n");
-            return -127.0f;
+        if (on) {
+            sessionStartTime = millis();
         }
-
-        return tempC;
     }
 };
 
@@ -126,15 +173,26 @@ void setup() {
     Serial.println("  Sauna Controller Starting...");
     Serial.println("=================================\n");
 
-    // Initialize pins
+    // Initialize pins — heater OFF by default
     pinMode(PIN_RELAY, OUTPUT);
     pinMode(PIN_STATUS_LED, OUTPUT);
-    digitalWrite(PIN_RELAY, LOW);  // Start with heater OFF
+    digitalWrite(PIN_RELAY, LOW);
 
     // Initialize temperature sensor
     tempSensor.begin();
     int sensorCount = tempSensor.getDeviceCount();
     Serial.printf("Found %d temperature sensor(s)\n", sensorCount);
+
+    if (sensorCount == 0) {
+        Serial.println("FATAL: No temperature sensor found — halting.");
+        Serial.println("Check wiring on GPIO 27 and reset the device.");
+        while (true) {
+            digitalWrite(PIN_STATUS_LED, !digitalRead(PIN_STATUS_LED));
+            delay(250);
+        }
+    }
+
+    tempSensor.setWaitForConversion(false);  // Non-blocking reads
 
     // Initialize HomeSpan
     homeSpan.begin(Category::Thermostats, "Sauna Controller");
@@ -152,8 +210,13 @@ void setup() {
 
     Serial.println("\nHomeKit accessory ready.");
     Serial.println("Use the Home app to pair this device.\n");
+
+    // Hardware watchdog — resets ESP32 if loop() stalls for 30s
+    esp_task_wdt_init(30, true);
+    esp_task_wdt_add(NULL);
 }
 
 void loop() {
+    esp_task_wdt_reset();
     homeSpan.poll();
 }
