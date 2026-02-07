@@ -10,6 +10,11 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <esp_task_wdt.h>
+#include "sauna_logic.h"
+
+// Compile-time check: our constant must match the DallasTemperature library
+static_assert(static_cast<int>(SENSOR_DISCONNECTED_C) == DEVICE_DISCONNECTED_C,
+              "SENSOR_DISCONNECTED_C drifted from DEVICE_DISCONNECTED_C");
 
 // =============================================================================
 // Pin Definitions
@@ -19,12 +24,9 @@ constexpr uint8_t PIN_TEMP_SENSOR = 27;     // DS18B20 data pin
 constexpr uint8_t PIN_STATUS_LED = 2;       // Onboard LED for status
 
 // =============================================================================
-// Configuration
+// Hardware Timing (not testable logic — stays here)
 // =============================================================================
-constexpr float TEMP_MAX_CELSIUS = 110.0f;  // Safety limit
-constexpr uint32_t SESSION_MAX_MINUTES = 60; // Hard limit fallback
 constexpr uint32_t TEMP_READ_INTERVAL_MS = 2000;
-constexpr float TEMP_HYSTERESIS = 2.0f;     // Deadband for thermostat cycling
 constexpr uint32_t CONVERSION_WAIT_MS = 750; // DS18B20 12-bit conversion time
 
 // =============================================================================
@@ -70,7 +72,7 @@ struct SaunaThermostat : Service::Thermostat {
         if (targetState->updated()) {
             int state = targetState->getNewVal();
 
-            if (state == 1 && sensorFault) {
+            if (state == 1 && !canAcceptHeatCommand(sensorFault)) {
                 LOG1("SAFETY: HEAT command blocked — sensor fault active\n");
                 return false;
             }
@@ -95,7 +97,7 @@ struct SaunaThermostat : Service::Thermostat {
         uint32_t now = millis();
 
         // --- Session timeout safety check ---
-        if (heaterActive && (now - sessionStartTime >= SESSION_MAX_MINUTES * 60000UL)) {
+        if (heaterActive && isSessionExpired(sessionStartTime, now)) {
             setHeaterState(false);
             targetState->setVal(0);
             LOG1("SAFETY: Session time limit (%u min) reached, heater disabled\n",
@@ -116,7 +118,7 @@ struct SaunaThermostat : Service::Thermostat {
                 conversionRequested = false;
                 float temp = tempSensor.getTempCByIndex(0);
 
-                if (temp <= DEVICE_DISCONNECTED_C) {
+                if (isSensorFault(temp)) {
                     // Sensor fault — fail safe immediately
                     LOG1("SAFETY: Temperature sensor fault (%.1f), heater disabled\n", temp);
                     setHeaterState(false);
@@ -128,20 +130,17 @@ struct SaunaThermostat : Service::Thermostat {
                     sensorFault = false;
                     currentTemp->setVal(temp);
 
-                    // Over-temperature safety cutoff
-                    if (temp >= TEMP_MAX_CELSIUS) {
+                    if (isOverTemperature(temp)) {
                         setHeaterState(false);
                         targetState->setVal(0);
                         LOG1("SAFETY: Max temp (%.0f°C) reached, heater disabled\n",
                              TEMP_MAX_CELSIUS);
                     }
-                    // Thermostat hysteresis control
                     else if (targetState->getVal() == 1) {
                         float target = targetTemp->getVal<float>();
-                        if (!heaterActive && temp < (target - TEMP_HYSTERESIS)) {
-                            setHeaterState(true);
-                        } else if (heaterActive && temp >= target) {
-                            setHeaterState(false);
+                        bool desired = shouldHeaterEngage(temp, target, heaterActive);
+                        if (desired != heaterActive) {
+                            setHeaterState(desired);
                         }
                     }
 

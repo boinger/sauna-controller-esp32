@@ -36,5 +36,4 @@ sdkconfig.old
 secrets.h
 credentials.h
 wifi_config.h
-CLAUDE.md
 *.lck
