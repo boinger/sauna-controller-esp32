@@ -34,7 +34,7 @@ Requires [PlatformIO](https://platformio.org/).
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/sauna-controller-esp32.git
+git clone https://github.com/boinger/sauna-controller-esp32.git
 cd sauna-controller-esp32
 
 # Build
@@ -86,6 +86,10 @@ Changes made via the REST API are reflected in HomeKit, and vice versa — both 
 - **Session Limit**: 60-minute hard timeout (configurable)
 - **Sensor Failure**: Heater disables if temperature sensor disconnects
 - **Fail-Safe Default**: Heater is OFF on boot and on any error
+
+## Related
+
+- [Sauna Controller iOS App](https://github.com/boinger/sauna-controller-app) — Native iOS companion app for this firmware
 
 ## License
 
