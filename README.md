@@ -22,11 +22,14 @@ Open-source ESP32 firmware for controlling an electric sauna heater with native 
 ```
 ESP32 GPIO 26 ──► Relay IN ──► Contactor Coil
 ESP32 GPIO 27 ──► DS18B20 Data (with 4.7kΩ pullup to 3.3V)
+ESP32 GPIO 2  ──► Status LED (onboard)
 ESP32 3.3V    ──► DS18B20 VCC
 ESP32 GND     ──► DS18B20 GND, Relay GND
 ```
 
 ⚠️ **WARNING**: This project controls high-voltage equipment. Ensure all electrical work is done by a qualified electrician and meets local codes.
+
+See the `hardware/` subdirectory for detailed component specs and a KiCad schematic.
 
 ## Building
 
@@ -55,9 +58,18 @@ pio device monitor
 4. The ESP32 will broadcast as "Sauna Controller"
 5. Follow pairing prompts (default setup code shown in serial monitor)
 
+## WiFi Configuration
+
+The firmware uses HomeSpan's built-in WiFi provisioning. On first boot (or if the stored network is unavailable), you can configure WiFi via:
+
+- **Serial CLI**: Connect via `pio device monitor` and press `W` to start the WiFi setup wizard
+- **AP Mode**: The ESP32 creates a temporary access point — connect to it and follow the captive portal prompts
+
+WiFi credentials are stored in the ESP32's non-volatile storage and persist across reboots.
+
 ## REST API
 
-The firmware runs an HTTP server on **port 8080** (HomeSpan uses port 80 for HomeKit). The companion iOS app communicates via these endpoints:
+The firmware runs an HTTP server on **port 8080** (HomeSpan uses port 80 for HomeKit). All temperatures are in **degrees Celsius**. The companion iOS app communicates via these endpoints:
 
 ```bash
 # Get current status
@@ -91,10 +103,22 @@ Changes made via the REST API are reflected in HomeKit, and vice versa — both 
 
 - [Sauna Controller iOS App](https://github.com/boinger/sauna-controller-app) — Native iOS companion app for this firmware
 
+## Development
+
+```bash
+# Static analysis
+pio check -e esp32
+
+# Run unit tests (host-native, no hardware needed)
+pio test -e native
+```
+
+Before submitting a PR, ensure: `pio run -e esp32` compiles with zero warnings, `pio check -e esp32` reports zero defects, and `pio test -e native` passes. See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
+
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
 
 ## Contributing
 
-Contributions welcome! Please open an issue first to discuss proposed changes.
+Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) and open an issue first to discuss proposed changes.
