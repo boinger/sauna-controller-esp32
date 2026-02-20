@@ -47,6 +47,9 @@ HomeSpan occupies port 80 for HAP, so the REST API runs on port 8080.
 
 **Safety**: `POST /heater` with `state=1` sets target state to HEAT — the relay is only engaged by `loop()` through the full safety pipeline (sensor check, over-temp, session timeout). It never directly activates the heater.
 
+## Interface Contract
+See `SPEC.md` (project root) for the authoritative system specification. Do not modify the REST API endpoints, JSON schemas, or HomeKit characteristics without updating SPEC.md first.
+
 ## Hardware Connections
 - GPIO 26: Relay output (controls contactor)
 - GPIO 27: DS18B20 temperature sensor data
