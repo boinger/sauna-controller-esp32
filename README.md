@@ -1,10 +1,11 @@
 # Sauna Controller - ESP32 Firmware
 
-Open-source ESP32 firmware for controlling an electric sauna heater with native Apple HomeKit integration.
+Open-source ESP32 firmware for controlling an electric sauna heater with native Apple HomeKit integration and a REST API for the companion iOS app.
 
 ## Features
 
 - **HomeKit Native**: Appears as a Thermostat in Apple Home app — control via Siri or Home app
+- **REST API**: HTTP endpoints for the companion iOS app (port 8080)
 - **Temperature Monitoring**: Real-time temperature from DS18B20 sensor
 - **Safety First**: Hard temperature limits, session timeouts, fail-safe defaults
 - **Local Only**: No cloud, no accounts, no subscriptions — just your local WiFi
@@ -53,6 +54,31 @@ pio device monitor
 3. Tap "+" → "Add Accessory"
 4. The ESP32 will broadcast as "Sauna Controller"
 5. Follow pairing prompts (default setup code shown in serial monitor)
+
+## REST API
+
+The firmware runs an HTTP server on **port 8080** (HomeSpan uses port 80 for HomeKit). The companion iOS app communicates via these endpoints:
+
+```bash
+# Get current status
+curl http://<ESP32-IP>:8080/status
+# → {"current_temp":72.5,"target_temp":80.0,"heating":true,"firmware":"1.0.0"}
+
+# Turn heater on (HEAT mode)
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"state":1}' http://<ESP32-IP>:8080/heater
+# → {"ok":true}
+
+# Turn heater off
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"state":0}' http://<ESP32-IP>:8080/heater
+
+# Set target temperature (40–100°C)
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"temperature":85.0}' http://<ESP32-IP>:8080/target
+```
+
+Changes made via the REST API are reflected in HomeKit, and vice versa — both interfaces control the same thermostat state.
 
 ## Safety Features
 

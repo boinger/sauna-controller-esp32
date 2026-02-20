@@ -2,7 +2,7 @@
  * Sauna Controller - ESP32 Firmware
  *
  * Controls a sauna heater via relay/contactor and monitors temperature
- * using DS18B20 sensor. Exposes HomeKit accessory for iOS integration.
+ * using DS18B20 sensor. Exposes HomeKit accessory and REST API for iOS.
  */
 
 #include <Arduino.h>
@@ -10,11 +10,18 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <esp_task_wdt.h>
+#include <WebServer.h>
 #include "sauna_logic.h"
+#include "http_validation.h"
 
 // Compile-time check: our constant must match the DallasTemperature library
 static_assert(static_cast<int>(SENSOR_DISCONNECTED_C) == DEVICE_DISCONNECTED_C,
               "SENSOR_DISCONNECTED_C drifted from DEVICE_DISCONNECTED_C");
+
+// =============================================================================
+// Version
+// =============================================================================
+constexpr const char* FIRMWARE_VERSION = "1.0.0";
 
 // =============================================================================
 // Pin Definitions
@@ -34,6 +41,11 @@ constexpr uint32_t CONVERSION_WAIT_MS = 750; // DS18B20 12-bit conversion time
 // =============================================================================
 OneWire oneWire(PIN_TEMP_SENSOR);
 DallasTemperature tempSensor(&oneWire);
+WebServer httpServer(8080);
+
+// Forward declaration — full definition below
+struct SaunaThermostat;
+SaunaThermostat *thermostat = nullptr;  // set in setup(), used by HTTP handlers
 
 // =============================================================================
 // HomeKit Accessory Definitions
@@ -161,6 +173,89 @@ struct SaunaThermostat : Service::Thermostat {
 };
 
 // =============================================================================
+// REST API Handlers (port 8080)
+// =============================================================================
+
+void handleGetStatus() {
+    char json[128];
+    snprintf(json, sizeof(json),
+        "{\"current_temp\":%.1f,\"target_temp\":%.1f,\"heating\":%s,\"firmware\":\"%s\"}",
+        thermostat->currentTemp->getVal<float>(),
+        thermostat->targetTemp->getVal<float>(),
+        thermostat->heaterActive ? "true" : "false",
+        FIRMWARE_VERSION);
+    httpServer.send(200, "application/json", json);
+}
+
+void handlePostHeater() {
+    String body = httpServer.arg("plain");
+
+    // Parse "state" from JSON body (manual — avoids ArduinoJson dep)
+    int idx = body.indexOf("\"state\"");
+    if (idx < 0) {
+        httpServer.send(400, "application/json", "{\"error\":\"missing 'state' field\"}");
+        return;
+    }
+    int colon = body.indexOf(':', idx);
+    if (colon < 0) {
+        httpServer.send(400, "application/json", "{\"error\":\"malformed JSON\"}");
+        return;
+    }
+    int state = body.substring(colon + 1).toInt();
+
+    if (!isValidHeaterState(state)) {
+        httpServer.send(400, "application/json", "{\"error\":\"invalid state, must be 0 or 1\"}");
+        return;
+    }
+
+    if (state == 1 && !canAcceptHeatCommand(thermostat->sensorFault)) {
+        httpServer.send(503, "application/json",
+            "{\"error\":\"sensor fault active, cannot enable heater\"}");
+        return;
+    }
+
+    if (state == 0) {
+        thermostat->setHeaterState(false);
+        thermostat->targetState->setVal(0);
+    } else {
+        // Set target state to HEAT — loop() engages relay through safety checks.
+        // Never call setHeaterState(true) directly from a command path.
+        thermostat->targetState->setVal(1);
+    }
+
+    httpServer.send(200, "application/json", "{\"ok\":true}");
+}
+
+void handlePostTarget() {
+    String body = httpServer.arg("plain");
+
+    // Parse "temperature" from JSON body
+    int idx = body.indexOf("\"temperature\"");
+    if (idx < 0) {
+        httpServer.send(400, "application/json", "{\"error\":\"missing 'temperature' field\"}");
+        return;
+    }
+    int colon = body.indexOf(':', idx);
+    if (colon < 0) {
+        httpServer.send(400, "application/json", "{\"error\":\"malformed JSON\"}");
+        return;
+    }
+    float temperature = body.substring(colon + 1).toFloat();
+
+    if (!isValidTargetTemp(temperature)) {
+        char err[80];
+        snprintf(err, sizeof(err),
+            "{\"error\":\"temperature must be between %.0f and %.0f\"}",
+            TARGET_TEMP_MIN, TARGET_TEMP_MAX);
+        httpServer.send(400, "application/json", err);
+        return;
+    }
+
+    thermostat->targetTemp->setVal(temperature);
+    httpServer.send(200, "application/json", "{\"ok\":true}");
+}
+
+// =============================================================================
 // Setup & Loop
 // =============================================================================
 
@@ -204,11 +299,18 @@ void setup() {
             new Characteristic::Manufacturer("DIY");
             new Characteristic::Model("SaunaController-v1");
             new Characteristic::SerialNumber("001");
-            new Characteristic::FirmwareRevision("1.0.0");
-        new SaunaThermostat();
+            new Characteristic::FirmwareRevision(FIRMWARE_VERSION);
+        thermostat = new SaunaThermostat();
 
     Serial.println("\nHomeKit accessory ready.");
     Serial.println("Use the Home app to pair this device.\n");
+
+    // REST API (port 8080 — HomeSpan uses port 80 for HAP)
+    httpServer.on("/status", HTTP_GET, handleGetStatus);
+    httpServer.on("/heater", HTTP_POST, handlePostHeater);
+    httpServer.on("/target", HTTP_POST, handlePostTarget);
+    httpServer.begin();
+    Serial.println("REST API listening on port 8080.");
 
     // Hardware watchdog — resets ESP32 if loop() stalls for 30s
     esp_task_wdt_init(30, true);
@@ -218,4 +320,5 @@ void setup() {
 void loop() {
     esp_task_wdt_reset();
     homeSpan.poll();
+    httpServer.handleClient();
 }
