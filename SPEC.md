@@ -91,7 +91,7 @@ Turning OFF (`state=0`) is always immediate and unconditional — `setHeaterStat
 
 Base URL: `http://<ESP32-IP>:8080`
 
-HomeSpan occupies port 80 for the HomeKit Accessory Protocol (HAP). The iOS app must include the port in the controller address (e.g., `192.168.1.100:8080`).
+HomeSpan occupies port 80 for the HomeKit Accessory Protocol (HAP). The iOS app hardcodes port 8080 in the base URL. Users enter only the IP address (e.g., `192.168.1.100`).
 
 #### GET /status
 
@@ -261,7 +261,7 @@ Runs continuously, called by Arduino framework:
 
 - `NetworkSession` protocol abstracts `URLSession` for testability
 - Timeout: 5s request / 10s resource
-- Base URL constructed from `controllerAddress` (user-entered, includes port)
+- Base URL constructed from `controllerAddress` (user-entered IP) with port 8080 appended
 
 ### Polling
 
@@ -319,7 +319,7 @@ The `/status` response does not include `sensor_fault`. If the sensor fails, the
 
 ### 8.3 Port Split
 
-HomeKit occupies port 80, REST API runs on port 8080. Users must enter the IP with port (e.g., `192.168.1.100:8080`). mDNS auto-discovery could eliminate this manual step.
+HomeKit occupies port 80, REST API runs on port 8080. The iOS app hardcodes port 8080; users enter only the IP address. mDNS auto-discovery could eliminate the remaining manual IP entry.
 
 ### 8.4 Error Response Parsing
 

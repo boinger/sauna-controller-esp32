@@ -35,7 +35,7 @@ The iOS app checks HTTP status codes but shows generic messages like "HTTP 503."
 Improve the day-to-day experience but not required for safe operation.
 
 ### mDNS auto-discovery
-Replace manual IP:port entry with automatic discovery. The ESP32 can advertise via mDNS (e.g., `sauna.local:8080`), and the iOS app can browse for the service.
+Replace manual IP entry with automatic discovery. The iOS app already hardcodes port 8080, so users only enter the IP address — mDNS would eliminate this remaining manual step. The ESP32 can advertise via mDNS (e.g., `sauna.local`), and the iOS app can browse for the service.
 - **Firmware**: Add `ESPmDNS` service advertisement in `setup()`
 - **iOS**: Use `NWBrowser` to discover `_http._tcp` services, pre-fill address
 
