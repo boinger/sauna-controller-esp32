@@ -132,8 +132,9 @@ Sets heater mode (OFF or HEAT).
 | Status | Body | Condition |
 |--------|------|-----------|
 | 200 | `{"ok":true}` | Command accepted |
-| 400 | `{"error":"invalid state, must be 0 or 1"}` | state not 0 or 1 |
+| 400 | `{"error":"invalid state, must be 0 or 1"}` | state not 0 or 1, or non-numeric value |
 | 400 | `{"error":"missing 'state' field"}` | No state in body |
+| 400 | `{"error":"malformed JSON"}` | No colon after field name |
 | 503 | `{"error":"sensor fault active, cannot enable heater"}` | Sensor fault, state=1 rejected |
 
 #### POST /target
@@ -155,7 +156,9 @@ Sets the target temperature.
 |--------|------|-----------|
 | 200 | `{"ok":true}` | Temperature set |
 | 400 | `{"error":"temperature must be between 40 and 100"}` | Out of range |
+| 400 | `{"error":"invalid temperature value"}` | Non-numeric value |
 | 400 | `{"error":"missing 'temperature' field"}` | No temperature in body |
+| 400 | `{"error":"malformed JSON"}` | No colon after field name |
 
 ### 4.2 HomeKit (Port 80)
 
@@ -186,7 +189,7 @@ The `SaunaThermostat` struct is the single source of truth for all thermostat st
 | `targetState` | SpanCharacteristic (int) | HomeKit writes, REST `/heater` | Firmware loop |
 | `heaterActive` | bool | `setHeaterState()` | REST `/status` (`heating` field) |
 | `sensorFault` | bool | Firmware loop | REST `/heater` (503 guard) |
-| `sessionStartTime` | uint32_t | `setHeaterState(true)` | Firmware loop (timeout check) |
+| `sessionStartTime` | uint32_t | HEAT command paths (HomeKit `update()`, REST `/heater`), on OFF→HEAT transition only | Firmware loop (timeout check) |
 
 #### Data Flow
 

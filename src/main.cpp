@@ -82,6 +82,7 @@ struct SaunaThermostat : Service::Thermostat {
 
     bool update() override {
         if (targetState->updated()) {
+            int oldState = targetState->getVal();
             int state = targetState->getNewVal();
 
             if (state == 1 && !canAcceptHeatCommand(sensorFault)) {
@@ -91,6 +92,8 @@ struct SaunaThermostat : Service::Thermostat {
 
             if (state == 0) {
                 setHeaterState(false);
+            } else if (state == 1 && oldState != 1) {
+                startSession();
             }
             // state == 1 (HEAT): don't turn heater on immediately.
             // loop() will engage it when temperature is below target.
@@ -109,7 +112,7 @@ struct SaunaThermostat : Service::Thermostat {
         uint32_t now = millis();
 
         // --- Session timeout safety check ---
-        if (heaterActive && isSessionExpired(sessionStartTime, now)) {
+        if (targetState->getVal() == 1 && isSessionExpired(sessionStartTime, now)) {
             setHeaterState(false);
             targetState->setVal(0);
             LOG1("SAFETY: Session time limit (%u min) reached, heater disabled\n",
@@ -162,13 +165,14 @@ struct SaunaThermostat : Service::Thermostat {
         }
     }
 
+    void startSession() {
+        sessionStartTime = millis();
+    }
+
     void setHeaterState(bool on) {
         heaterActive = on;
         digitalWrite(PIN_RELAY, on ? HIGH : LOW);
         digitalWrite(PIN_STATUS_LED, on ? HIGH : LOW);
-        if (on) {
-            sessionStartTime = millis();
-        }
     }
 };
 
@@ -201,7 +205,12 @@ void handlePostHeater() {
         httpServer.send(400, "application/json", "{\"error\":\"malformed JSON\"}");
         return;
     }
-    int state = body.substring(colon + 1).toInt();
+
+    int state;
+    if (!parseIntValue(body.substring(colon + 1).c_str(), state)) {
+        httpServer.send(400, "application/json", "{\"error\":\"invalid state, must be 0 or 1\"}");
+        return;
+    }
 
     if (!isValidHeaterState(state)) {
         httpServer.send(400, "application/json", "{\"error\":\"invalid state, must be 0 or 1\"}");
@@ -220,6 +229,9 @@ void handlePostHeater() {
     } else {
         // Set target state to HEAT — loop() engages relay through safety checks.
         // Never call setHeaterState(true) directly from a command path.
+        if (thermostat->targetState->getVal() != 1) {
+            thermostat->startSession();
+        }
         thermostat->targetState->setVal(1);
     }
 
@@ -240,7 +252,12 @@ void handlePostTarget() {
         httpServer.send(400, "application/json", "{\"error\":\"malformed JSON\"}");
         return;
     }
-    float temperature = body.substring(colon + 1).toFloat();
+
+    float temperature;
+    if (!parseFloatValue(body.substring(colon + 1).c_str(), temperature)) {
+        httpServer.send(400, "application/json", "{\"error\":\"invalid temperature value\"}");
+        return;
+    }
 
     if (!isValidTargetTemp(temperature)) {
         char err[80];

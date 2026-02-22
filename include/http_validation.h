@@ -8,6 +8,9 @@
 #ifndef HTTP_VALIDATION_H
 #define HTTP_VALIDATION_H
 
+#include <cstdlib>
+#include <cctype>
+
 // =============================================================================
 // Target Temperature Range
 // =============================================================================
@@ -26,6 +29,54 @@ inline bool isValidHeaterState(int state) {
 /** Returns true if the target temperature is within the allowed range. */
 inline bool isValidTargetTemp(float temp) {
     return temp >= TARGET_TEMP_MIN && temp <= TARGET_TEMP_MAX;
+}
+
+// =============================================================================
+// Input Parsing (strict — rejects garbage that toInt()/toFloat() would accept)
+// =============================================================================
+
+/**
+ * Returns true if all remaining characters after a parsed number are
+ * whitespace or JSON structural closers ('}', ']'). The hand-rolled JSON
+ * parser passes substrings like " 1}", so trailing braces are expected.
+ */
+inline bool isTrailingClean(const char* p) {
+    if (!p) return true;
+    while (*p) {
+        if (!std::isspace(static_cast<unsigned char>(*p)) && *p != '}' && *p != ']') {
+            return false;
+        }
+        ++p;
+    }
+    return true;
+}
+
+/**
+ * Strict integer parse. Returns false for null, empty, non-numeric, or
+ * values with unrecognized trailing characters (e.g. "1abc", "1.5").
+ */
+inline bool parseIntValue(const char* str, int& out) {
+    if (!str || *str == '\0') return false;
+    char* end = nullptr;
+    long val = std::strtol(str, &end, 10);
+    if (end == str) return false;           // no digits consumed
+    if (!isTrailingClean(end)) return false; // garbage after number
+    out = static_cast<int>(val);
+    return true;
+}
+
+/**
+ * Strict float parse. Returns false for null, empty, non-numeric, or
+ * values with unrecognized trailing characters.
+ */
+inline bool parseFloatValue(const char* str, float& out) {
+    if (!str || *str == '\0') return false;
+    char* end = nullptr;
+    float val = std::strtof(str, &end);
+    if (end == str) return false;
+    if (!isTrailingClean(end)) return false;
+    out = val;
+    return true;
 }
 
 #endif // HTTP_VALIDATION_H
