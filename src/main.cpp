@@ -273,6 +273,18 @@ void handlePostTarget() {
 }
 
 // =============================================================================
+// HTTP Server Startup (called by HomeSpan once WiFi connects)
+// =============================================================================
+
+void startHttpServer() {
+    httpServer.on("/status", HTTP_GET, handleGetStatus);
+    httpServer.on("/heater", HTTP_POST, handlePostHeater);
+    httpServer.on("/target", HTTP_POST, handlePostTarget);
+    httpServer.begin();
+    Serial.println("REST API listening on port 8080.");
+}
+
+// =============================================================================
 // Setup & Loop
 // =============================================================================
 
@@ -305,7 +317,8 @@ void setup() {
 
     tempSensor.setWaitForConversion(false);  // Non-blocking reads
 
-    // Initialize HomeSpan
+    // Initialize HomeSpan — start HTTP server once WiFi connects
+    homeSpan.setWifiCallback(startHttpServer);
     homeSpan.begin(Category::Thermostats, "Sauna Controller");
 
     // Create the accessory
@@ -321,13 +334,6 @@ void setup() {
 
     Serial.println("\nHomeKit accessory ready.");
     Serial.println("Use the Home app to pair this device.\n");
-
-    // REST API (port 8080 — HomeSpan uses port 80 for HAP)
-    httpServer.on("/status", HTTP_GET, handleGetStatus);
-    httpServer.on("/heater", HTTP_POST, handlePostHeater);
-    httpServer.on("/target", HTTP_POST, handlePostTarget);
-    httpServer.begin();
-    Serial.println("REST API listening on port 8080.");
 
     // Hardware watchdog — resets ESP32 if loop() stalls for 30s
     esp_task_wdt_init(30, true);
