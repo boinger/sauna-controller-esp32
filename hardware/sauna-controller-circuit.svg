@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 880" width="1200" height="880" font-family="'Courier New', monospace">
+  <defs>
+    <style>
+      .title { font-size: 18px; font-weight: bold; fill: #1a1a1a; font-family: 'Helvetica Neue', sans-serif; }
+      .subtitle { font-size: 11px; fill: #666; font-family: 'Helvetica Neue', sans-serif; }
+      .comp-label { font-size: 12px; font-weight: bold; fill: #1a1a1a; }
+      .pin-label { font-size: 10px; fill: #444; }
+      .value-label { font-size: 10px; fill: #0066cc; }
+      .wire-lv { stroke: #2d8cf0; stroke-width: 2; fill: none; }
+      .wire-hv { stroke: #e63946; stroke-width: 2.5; fill: none; }
+      .wire-gnd { stroke: #555; stroke-width: 2; fill: none; }
+      .wire-pwr { stroke: #e67e22; stroke-width: 2; fill: none; }
+      .wire-data { stroke: #27ae60; stroke-width: 2; fill: none; }
+      .node { fill: #333; }
+      .zone-lv { fill: #f0f7ff; stroke: #b0d4f1; stroke-width: 1; stroke-dasharray: 6 3; rx: 8; }
+      .zone-hv { fill: #fff5f5; stroke: #f5b7b1; stroke-width: 1; stroke-dasharray: 6 3; rx: 8; }
+      .zone-label { font-size: 11px; fill: #888; font-family: 'Helvetica Neue', sans-serif; font-style: italic; }
+      .warning { font-size: 10px; fill: #e63946; font-weight: bold; font-family: 'Helvetica Neue', sans-serif; }
+      .note { font-size: 9px; fill: #888; font-family: 'Helvetica Neue', sans-serif; }
+    </style>
+  </defs>
+  <rect width="1200" height="880" fill="#fafafa"/>
+  <text x="600" y="30" text-anchor="middle" class="title" style="white-space: pre;">Sauna Controller — ESP32 Circuit Diagram</text>
+  <text x="600" y="48" text-anchor="middle" class="subtitle" style="white-space: pre;">github.com/boinger/sauna-controller-esp32</text>
+  <rect x="12.398" y="53.823" width="650" height="518.619" class="zone-lv" style=""/>
+  <text x="35" y="78" class="zone-label" style="white-space: pre;">LOW VOLTAGE (3.3V DC)</text>
+  <rect x="686.674" y="64.751" width="490" height="540" class="zone-hv"/>
+  <text x="705" y="78" class="zone-label" style="white-space: pre;">HIGH VOLTAGE (240V AC) ⚠</text>
+  <rect x="50" y="130" width="200" height="350" rx="6" fill="#fff" stroke="#333" stroke-width="2"/>
+  <rect x="50" y="130" width="200" height="30" rx="6" fill="#333"/>
+  <rect x="50" y="154" width="200" height="6" fill="#333"/>
+  <text x="150" y="150" text-anchor="middle" fill="#fff" class="comp-label" style="white-space: pre;">ESP32-DevKitC</text>
+  <rect x="120" y="119" width="60" height="16" rx="3" fill="#888" stroke="#555" stroke-width="1"/>
+  <text x="150" y="131" text-anchor="middle" font-size="7" fill="#fff" style="white-space: pre;">USB</text>
+  <circle cx="250" cy="200" r="3" class="node"/>
+  <line x1="250" y1="200" x2="262" y2="200" stroke="#333" stroke-width="1.5"/>
+  <text x="262.78" y="194.605" class="pin-label" style="white-space: pre; font-size: 10px;">GPIO 26</text>
+  <circle cx="250" cy="255" r="3" class="node"/>
+  <line x1="250" y1="255" x2="262" y2="255" stroke="#333" stroke-width="1.5"/>
+  <text x="268" y="259" class="pin-label" style="white-space: pre;" transform="matrix(1, 0, 0, 0.909222, -7.12717, 16.020353)">GND</text>
+  <circle cx="250" cy="300" r="3" class="node"/>
+  <line x1="250" y1="300" x2="262" y2="300" stroke="#333" stroke-width="1.5"/>
+  <circle cx="250" cy="380" r="3" class="node"/>
+  <line x1="250" y1="380" x2="262" y2="380" stroke="#333" stroke-width="1.5"/>
+  <text x="260.398" y="373.072" class="pin-label" style="white-space: pre; font-size: 10px;">GPIO 27</text>
+  <circle cx="250" cy="440" r="3" class="node"/>
+  <line x1="250" y1="440" x2="262" y2="440" stroke="#333" stroke-width="1.5"/>
+  <text x="265.624" y="434.497" class="pin-label" style="white-space: pre; font-size: 10px;">GND</text>
+  <line x1="38" y1="200" x2="50" y2="200" stroke="#333" stroke-width="1.5"/>
+  <text x="46.254" y="196.873" class="pin-label" text-anchor="end" style="white-space: pre; font-size: 10px;">GPIO 2</text>
+  <text x="68.111" y="210.347" class="note" text-anchor="end" style="white-space: pre; font-size: 9px;" transform="matrix(1, 0, 0, 1, -20.431257, 2.375713)">(onboard<tspan x="68.11100006103516" dy="1em">​</tspan> LED)</text>
+  <rect x="440" y="100" width="170" height="120" rx="6" fill="#fff" stroke="#2d8cf0" stroke-width="2"/>
+  <text x="525" y="122" text-anchor="middle" class="comp-label" style="white-space: pre;">SSR-25DA</text>
+  <text x="525" y="138" text-anchor="middle" class="value-label" style="white-space: pre;">3-32VDC → 24-380VAC</text>
+  <circle cx="440" cy="165" r="3" class="node"/>
+  <circle cx="440" cy="190" r="3" class="node"/>
+  <text x="452" y="169" class="pin-label" style="white-space: pre;">DC+</text>
+  <text x="452" y="194" class="pin-label" style="white-space: pre;">DC−</text>
+  <circle cx="610" cy="165" r="3" fill="#e63946"/>
+  <circle cx="610" cy="190" r="3" fill="#e63946"/>
+  <text x="583" y="169" class="pin-label" text-anchor="end" style="white-space: pre;">AC1</text>
+  <text x="583" y="194" class="pin-label" text-anchor="end" style="white-space: pre;">AC2</text>
+  <rect x="480" y="270" width="160" height="155" rx="6" fill="#fff" stroke="#27ae60" stroke-width="2"/>
+  <text x="560" y="295" text-anchor="middle" class="comp-label" style="white-space: pre;">DS18B20</text>
+  <text x="560" y="312" text-anchor="middle" class="value-label" style="white-space: pre;">Waterproof Probe</text>
+  <line x1="455" y1="300" x2="480" y2="300" stroke="#333" stroke-width="1.5"/>
+  <circle cx="455" cy="300" r="3" class="node"/>
+  <text x="490" y="304" class="pin-label" style="white-space: pre;">VDD</text>
+  <line x1="455" y1="360" x2="480" y2="360" stroke="#333" stroke-width="1.5"/>
+  <circle cx="455" cy="360" r="3" class="node"/>
+  <text x="490" y="364" class="pin-label" style="white-space: pre;">DQ</text>
+  <line x1="455" y1="400" x2="480" y2="400" stroke="#333" stroke-width="1.5"/>
+  <circle cx="455" cy="400" r="3" class="node"/>
+  <text x="490" y="404" class="pin-label" style="white-space: pre;">GND</text>
+  <text x="415" y="318" text-anchor="end" class="comp-label" style="white-space: pre;">R1</text>
+  <text x="415" y="350" text-anchor="end" class="value-label" style="white-space: pre;">4.7kΩ</text>
+  <line x1="430" y1="300" x2="430" y2="308" stroke="#333" stroke-width="2"/>
+  <polyline points="430,308 438,313 422,323 438,333 422,343 438,353 430,358" fill="none" stroke="#333" stroke-width="2"/>
+  <line x1="430" y1="358" x2="430" y2="360" stroke="#333" stroke-width="2"/>
+  <path d="M 250,200 L 380,200 L 380,165 L 440,165" class="wire-lv"/>
+  <text x="316" y="194" class="note" style="white-space: pre;">SSR Control</text>
+  <path d="M 250,255 L 395,255 L 395,190 L 440,190" class="wire-gnd"/>
+  <path d="M 250,300 L 455,300" class="wire-pwr"/>
+  <circle cx="430" cy="300" r="3" fill="#e67e22"/>
+  <text x="340" y="294" class="note" style="white-space: pre;" transform="matrix(1, 0, 0, 0.982756, -78.874068, 6.82585)">3.3V</text>
+  <path d="M 430,360 L 455,360" class="wire-data"/>
+  <path d="M 250,380 L 430,380 L 430,360" class="wire-data"/>
+  <circle cx="430" cy="360" r="3" fill="#27ae60"/>
+  <text x="340" y="374" class="note" style="white-space: pre;">Data (1-Wire)</text>
+  <path d="M 250,440 L 455,440 L 455,400" class="wire-gnd"/>
+  <text x="750" y="100" class="comp-label" fill="#e63946" style="white-space: pre;">L (Hot)</text>
+  <text x="750" y="114" class="value-label" style="white-space: pre;">240VAC</text>
+  <line x1="770" y1="120.475" x2="770" y2="165.475" class="wire-hv"/>
+  <circle cx="770" cy="165" r="4" fill="#e63946"/>
+  <path d="M 771.426 165.1 L 611.426 165.1" class="wire-hv"/>
+  <line x1="770.425" y1="167.376" x2="770.425" y2="180.154" class="wire-hv" style=""/>
+  <g transform="matrix(1, 0, 0, 1, 83.150419, -107.382475)">
+    <rect x="710" y="250" width="120" height="60" rx="6" fill="#fff" stroke="#e63946" stroke-width="2"/>
+    <text x="770" y="275" text-anchor="middle" class="comp-label" style="white-space: pre;">Timer Switch</text>
+    <text x="770" y="290" text-anchor="middle" class="note" style="white-space: pre;">(existing in heater)</text>
+  </g>
+  <path d="M 610,190 L 650,190 L 650,230 L 930,230 L 930,340" class="wire-hv"/>
+  <text x="790" y="224" class="note" style="white-space: pre;">SSR path</text>
+  <path d="M 913.625 182.595 L 930 182.595 L 930 340" class="wire-hv" style=""/>
+  <circle cx="930" cy="340" r="4" fill="#e63946"/>
+  <text x="880" y="298" class="note" style="white-space: pre;">Timer path</text>
+  <text x="950" y="322" class="note" fill="#e63946" style="white-space: pre;">parallel</text>
+  <rect x="860" y="360" width="150" height="75" rx="6" fill="#fff" stroke="#e63946" stroke-width="2"/>
+  <text x="935" y="385" text-anchor="middle" class="comp-label" style="white-space: pre;">Contactor Coil</text>
+  <text x="935" y="402" text-anchor="middle" class="value-label" style="white-space: pre;">C25BNB230T</text>
+  <text x="935" y="417" text-anchor="middle" class="note" style="white-space: pre;">240VAC coil</text>
+  <line x1="930" y1="340" x2="930" y2="360" class="wire-hv"/>
+  <line x1="930" y1="435" x2="930" y2="480" class="wire-hv"/>
+  <text x="940" y="498" class="comp-label" fill="#2d8cf0" style="white-space: pre;">N (Neutral)</text>
+  <text x="940" y="512" class="value-label" style="white-space: pre;">240VAC</text>
+  <rect x="770" y="630" width="220" height="80" rx="6" fill="#fff" stroke="#c0392b" stroke-width="2.5"/>
+  <text x="880" y="655" text-anchor="middle" class="comp-label" fill="#c0392b" style="white-space: pre;">Contactor Power Contacts</text>
+  <text x="880" y="672" text-anchor="middle" class="value-label" style="white-space: pre;">Switches heater load</text>
+  <text x="880" y="688" text-anchor="middle" class="note" style="white-space: pre;">7kW @ 240V (~30A)</text>
+  <line x1="930" y1="435" x2="930" y2="630" stroke="#999" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="945" y="550" class="note" fill="#999" style="white-space: pre;">magnetic</text>
+  <text x="945" y="563" class="note" fill="#999" style="white-space: pre;">coupling</text>
+  <text x="820" y="624" class="pin-label" fill="#e63946" style="white-space: pre;">L in</text>
+  <text x="920" y="624" class="pin-label" fill="#2d8cf0" style="white-space: pre;">N in</text>
+  <rect x="810" y="750" width="170" height="50" rx="6" fill="#fff3e0" stroke="#e67e22" stroke-width="2"/>
+  <text x="895" y="775" text-anchor="middle" class="comp-label" fill="#e67e22" style="white-space: pre;">Sauna Heater</text>
+  <text x="895" y="790" text-anchor="middle" class="note" style="white-space: pre;">7kW / 240V</text>
+  <line x1="840" y1="710" x2="840" y2="750" class="wire-hv"/>
+  <line x1="920" y1="710" x2="920" y2="750" class="wire-hv"/>
+  <rect x="20" y="640" width="290" height="180" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <text x="35" y="665" class="comp-label" style="white-space: pre;">Legend</text>
+  <line x1="35" y1="688" x2="75" y2="688" class="wire-lv"/>
+  <text x="85" y="692" class="pin-label" style="white-space: pre;">Control signal (GPIO → SSR)</text>
+  <line x1="35" y1="710" x2="75" y2="710" class="wire-data"/>
+  <text x="85" y="714" class="pin-label" style="white-space: pre;">Data (1-Wire / DS18B20)</text>
+  <line x1="35" y1="732" x2="75" y2="732" class="wire-pwr"/>
+  <text x="85" y="736" class="pin-label" style="white-space: pre;">3.3V Power</text>
+  <line x1="35" y1="754" x2="75" y2="754" class="wire-gnd"/>
+  <text x="85" y="758" class="pin-label" style="white-space: pre;">Ground</text>
+  <line x1="35" y1="776" x2="75" y2="776" class="wire-hv"/>
+  <text x="85" y="780" class="pin-label" style="white-space: pre;">240VAC Mains</text>
+  <line x1="35" y1="798" x2="75" y2="798" stroke="#999" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="85" y="802" class="pin-label" style="white-space: pre;">Magnetic coupling</text>
+  <rect x="20" y="838" width="1160" height="36" rx="4" fill="#fff0f0" stroke="#e63946" stroke-width="1"/>
+  <text x="600" y="861" text-anchor="middle" class="warning" style="white-space: pre;">⚠ WARNING: High-voltage (240VAC) work must be performed by a qualified electrician. Ensure all wiring meets local codes.</text>
+  <path d="M 770.912 179.289 L 793.464 179.289 L 793.464 178.946" class="wire-hv" style="stroke-width: 2.5;"/>
+</svg>
