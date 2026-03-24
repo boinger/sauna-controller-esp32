@@ -5,6 +5,7 @@
  */
 
 #include <unity.h>
+#include <cmath>
 #include "sauna_logic.h"
 
 void setUp(void) {}
@@ -35,6 +36,18 @@ void test_sensor_fault_negative_but_valid(void) {
     TEST_ASSERT_FALSE(isSensorFault(-10.0f));
 }
 
+void test_sensor_fault_nan(void) {
+    TEST_ASSERT_TRUE(isSensorFault(NAN));
+}
+
+void test_sensor_fault_inf(void) {
+    TEST_ASSERT_TRUE(isSensorFault(INFINITY));
+}
+
+void test_sensor_fault_neg_inf(void) {
+    TEST_ASSERT_TRUE(isSensorFault(-INFINITY));
+}
+
 // =============================================================================
 // Over-Temperature Detection
 // =============================================================================
@@ -53,6 +66,14 @@ void test_overtemp_just_below_limit(void) {
 
 void test_overtemp_normal(void) {
     TEST_ASSERT_FALSE(isOverTemperature(80.0f));
+}
+
+void test_overtemp_nan(void) {
+    TEST_ASSERT_TRUE(isOverTemperature(NAN));
+}
+
+void test_overtemp_inf(void) {
+    TEST_ASSERT_TRUE(isOverTemperature(INFINITY));
 }
 
 // =============================================================================
@@ -157,12 +178,17 @@ int main(void) {
     RUN_TEST(test_sensor_fault_zero_is_valid);
     RUN_TEST(test_sensor_fault_normal_temp);
     RUN_TEST(test_sensor_fault_negative_but_valid);
+    RUN_TEST(test_sensor_fault_nan);
+    RUN_TEST(test_sensor_fault_inf);
+    RUN_TEST(test_sensor_fault_neg_inf);
 
     // Over-temperature detection
     RUN_TEST(test_overtemp_at_limit);
     RUN_TEST(test_overtemp_above_limit);
     RUN_TEST(test_overtemp_just_below_limit);
     RUN_TEST(test_overtemp_normal);
+    RUN_TEST(test_overtemp_nan);
+    RUN_TEST(test_overtemp_inf);
 
     // Session timeout
     RUN_TEST(test_session_not_expired_at_start);

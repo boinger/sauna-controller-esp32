@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- Add NaN/Inf guard to `isSensorFault()` and `isOverTemperature()` — prevents IEEE 754 NaN from bypassing safety checks
+- Add Content-Type validation to POST endpoints — rejects non-JSON requests with HTTP 415
+
+### Changed
+
+- Enable `-Wall -Wextra -Werror` for project source via `build_src_flags` (libraries excluded)
+
 ## [1.0.1] - 2026-02-20
 
 ### Changed

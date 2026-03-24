@@ -192,6 +192,12 @@ void handleGetStatus() {
 }
 
 void handlePostHeater() {
+    if (httpServer.header("Content-Type").indexOf("application/json") < 0) {
+        httpServer.send(415, "application/json",
+            "{\"error\":\"Content-Type must be application/json\"}");
+        return;
+    }
+
     String body = httpServer.arg("plain");
 
     // Parse "state" from JSON body (manual — avoids ArduinoJson dep)
@@ -239,6 +245,12 @@ void handlePostHeater() {
 }
 
 void handlePostTarget() {
+    if (httpServer.header("Content-Type").indexOf("application/json") < 0) {
+        httpServer.send(415, "application/json",
+            "{\"error\":\"Content-Type must be application/json\"}");
+        return;
+    }
+
     String body = httpServer.arg("plain");
 
     // Parse "temperature" from JSON body
@@ -280,6 +292,8 @@ void startHttpServer() {
     httpServer.on("/status", HTTP_GET, handleGetStatus);
     httpServer.on("/heater", HTTP_POST, handlePostHeater);
     httpServer.on("/target", HTTP_POST, handlePostTarget);
+    const char* headerKeys[] = {"Content-Type"};
+    httpServer.collectHeaders(headerKeys, 1);
     httpServer.begin();
     Serial.println("REST API listening on port 8080.");
 }

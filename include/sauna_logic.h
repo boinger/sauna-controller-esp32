@@ -8,6 +8,7 @@
 #ifndef SAUNA_LOGIC_H
 #define SAUNA_LOGIC_H
 
+#include <cmath>
 #include <cstdint>
 
 // =============================================================================
@@ -23,14 +24,18 @@ constexpr float SENSOR_DISCONNECTED_C  = -127.0f;   // Must match DEVICE_DISCONN
 // Pure Logic Functions
 // =============================================================================
 
-/** Returns true when the temperature reading indicates a disconnected sensor. */
+/** Returns true when the temperature reading indicates a disconnected sensor.
+ *  Also catches NaN/Inf — IEEE 754 NaN bypasses all comparison operators,
+ *  which would silently pass through safety checks and keep the heater ON. */
 inline bool isSensorFault(float temp) {
-    return temp <= SENSOR_DISCONNECTED_C;
+    return std::isnan(temp) || std::isinf(temp) || temp <= SENSOR_DISCONNECTED_C;
 }
 
-/** Returns true when temperature has reached or exceeded the safety limit. */
+/** Returns true when temperature has reached or exceeded the safety limit.
+ *  NaN/Inf guard duplicated here (belt-and-suspenders) so that refactoring
+ *  the call order in loop() cannot reintroduce the NaN bypass. */
 inline bool isOverTemperature(float temp) {
-    return temp >= TEMP_MAX_CELSIUS;
+    return std::isnan(temp) || std::isinf(temp) || temp >= TEMP_MAX_CELSIUS;
 }
 
 /**
