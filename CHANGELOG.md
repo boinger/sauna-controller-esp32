@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 
 - Enable `-Wall -Wextra -Werror` for project source via `build_src_flags` (libraries excluded)
+- Update espressif32 platform 6.12.0 → 6.13.0
 
 ## [1.0.1] - 2026-02-20
 
