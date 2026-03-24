@@ -21,6 +21,9 @@ jobs:
       - name: Install PlatformIO
         run: pip install platformio
 
+      - name: Create secrets.h from template
+        run: cp include/secrets.h.example include/secrets.h
+
       - name: Build firmware
         run: pio run -e esp32
 
