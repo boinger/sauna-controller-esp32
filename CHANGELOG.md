@@ -16,6 +16,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Enable `-Wall -Wextra -Werror` for project source via `build_src_flags` (libraries excluded)
 - Update espressif32 platform 6.12.0 → 6.13.0
 
+### Added
+
+- OTA firmware updates via HomeSpan's built-in ArduinoOTA integration (password in gitignored `secrets.h`)
+- Pin partition scheme to `default.csv` to prevent drift across platform updates
+
 ## [1.0.1] - 2026-02-20
 
 ### Changed

@@ -50,6 +50,24 @@ pio run --target upload
 pio device monitor
 ```
 
+## OTA Updates
+
+After the initial USB flash, firmware can be updated over WiFi (OTA):
+
+```bash
+pio run --target upload --upload-port <ESP32_IP>
+```
+
+You'll be prompted for the OTA password (set in `include/secrets.h`).
+
+**First-time setup:**
+1. Copy `include/secrets.h.example` to `include/secrets.h`
+2. Set your OTA password in `secrets.h`
+3. Flash via USB: `pio run --target upload`
+4. All subsequent updates can use OTA
+
+The OTA password can also be changed at runtime via the HomeSpan serial CLI (`O` command).
+
 ## HomeKit Setup
 
 1. Power on the ESP32

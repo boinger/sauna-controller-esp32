@@ -13,6 +13,7 @@
 #include <WebServer.h>
 #include "sauna_logic.h"
 #include "http_validation.h"
+#include "secrets.h"
 
 // Compile-time check: our constant must match the DallasTemperature library
 static_assert(static_cast<int>(SENSOR_DISCONNECTED_C) == DEVICE_DISCONNECTED_C,
@@ -333,6 +334,7 @@ void setup() {
 
     // Initialize HomeSpan — start HTTP server once WiFi connects
     homeSpan.setWifiCallback(startHttpServer);
+    homeSpan.enableOTA(OTA_PASSWORD);
     homeSpan.begin(Category::Thermostats, "Sauna Controller");
 
     // Create the accessory

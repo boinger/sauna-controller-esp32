@@ -26,6 +26,14 @@ pio check -e esp32
 pio test -e native
 ```
 
+## OTA Updates
+- OTA enabled via `homeSpan.enableOTA(OTA_PASSWORD)` in `setup()`
+- Password stored in `include/secrets.h` (gitignored); template at `include/secrets.h.example`
+- Partition scheme pinned to `default.csv` (dual OTA slots, 1.25MB each)
+- Flash usage is tight (~96.5%); monitor after adding features
+- Upload via OTA: `pio run --target upload --upload-port <ESP32_IP>`
+- Password changeable at runtime via HomeSpan serial CLI ('O' command)
+
 ## Development Guidelines
 - This is an open-source project — keep code clean and well-documented
 - Safety is paramount: always fail-safe (heater OFF on any error condition)
